@@ -5,13 +5,8 @@ import android.content.Context;
 
 import com.belfoapps.youtubesync.di.annotations.ActivityContext;
 import com.belfoapps.youtubesync.models.SharedPreferencesHelper;
-import com.belfoapps.youtubesync.presenters.AdvertisePresenter;
-import com.belfoapps.youtubesync.presenters.DiscoverPresenter;
 import com.belfoapps.youtubesync.presenters.MainPresenter;
-import com.belfoapps.youtubesync.presenters.SetupPresenter;
-import com.belfoapps.youtubesync.presenters.WatchPresenter;
 import com.belfoapps.youtubesync.utils.ReceiveBytesPayloadListener;
-import com.google.gson.Gson;
 
 import javax.inject.Singleton;
 
@@ -44,31 +39,7 @@ public class MVPModule {
 
     @Provides
     @Singleton
-    MainPresenter providesMainPresenter(SharedPreferencesHelper mSharedPrefs) {
-        return new MainPresenter(mSharedPrefs);
-    }
-
-    @Provides
-    @Singleton
-    SetupPresenter providesSetupPresenter() {
-        return new SetupPresenter();
-    }
-
-    @Provides
-    @Singleton
-    DiscoverPresenter providesDiscoverPresenter(ReceiveBytesPayloadListener payloadCallback) {
-        return new DiscoverPresenter(payloadCallback);
-    }
-
-    @Provides
-    @Singleton
-    WatchPresenter providesWatchPresenter() {
-        return new WatchPresenter();
-    }
-
-    @Provides
-    @Singleton
-    AdvertisePresenter providesAdvertisePresenter(ReceiveBytesPayloadListener payloadCallback) {
-        return new AdvertisePresenter(payloadCallback);
+    MainPresenter providesMainPresenter(@ActivityContext Context context, ReceiveBytesPayloadListener payloadCallback, SharedPreferencesHelper mSharedPrefs) {
+        return new MainPresenter(context, payloadCallback, mSharedPrefs);
     }
 }

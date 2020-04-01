@@ -1,6 +1,7 @@
 package com.belfoapps.youtubesync.utils;
 
 import android.content.SharedPreferences;
+import android.os.Build;
 
 public class Config {
     //Steps
@@ -9,6 +10,7 @@ public class Config {
     public static final int DISCOVER_STEP = 2;
     public static final int WATCH_STEP = 3;
     public static final String SERVICE_ID = "YoutubeSync";
+    public static final String DEVICE_NAME = Build.MANUFACTURER + "-" + Build.MODEL;
 
     //Essentials
     private static final String GDPR = "Gdpr";

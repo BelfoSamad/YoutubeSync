@@ -23,15 +23,6 @@ public interface MVPComponent {
     //Inject in Activities
     void inject(MainActivity mainActivity);
 
-    //Inject in Fragments
-    void inject(SetupFragment setup);
-
-    void inject(AdvertiseFragment advertise);
-
-    void inject(DiscoverFragment discover);
-
-    void inject(WatchFragment watch);
-
 
     //Context
     @ActivityContext

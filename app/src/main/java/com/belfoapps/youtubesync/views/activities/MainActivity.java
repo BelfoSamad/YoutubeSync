@@ -12,6 +12,7 @@ import com.belfoapps.youtubesync.di.components.DaggerMVPComponent;
 import com.belfoapps.youtubesync.di.components.MVPComponent;
 import com.belfoapps.youtubesync.di.modules.ApplicationModule;
 import com.belfoapps.youtubesync.di.modules.MVPModule;
+import com.belfoapps.youtubesync.pojo.Device;
 import com.belfoapps.youtubesync.presenters.MainPresenter;
 import com.belfoapps.youtubesync.views.fragments.AdvertiseFragment;
 import com.belfoapps.youtubesync.views.fragments.DiscoverFragment;
@@ -35,6 +36,11 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
     @Inject
     MainPresenter mPresenter;
     private MainPagerAdapter mAdapter;
+    private SetupFragment setupFragment;
+    private DiscoverFragment discoverFragment;
+    private AdvertiseFragment advertiseFragment;
+    private WatchFragment watchFragment;
+
     /**************************************** View Declarations ***********************************/
     @BindView(R.id.viewpager)
     UnScrollableViewPager mViewPager;
@@ -78,10 +84,10 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
     public void initViewPager() {
         ArrayList<Fragment> fragments = new ArrayList<>();
 
-        SetupFragment setupFragment = new SetupFragment(this);
-        DiscoverFragment discoverFragment = new DiscoverFragment(this);
-        AdvertiseFragment advertiseFragment = new AdvertiseFragment(this);
-        WatchFragment watchFragment = new WatchFragment();
+        setupFragment = new SetupFragment(this);
+        discoverFragment = new DiscoverFragment(this, mPresenter);
+        advertiseFragment = new AdvertiseFragment(this, mPresenter);
+        watchFragment = new WatchFragment(mPresenter);
 
         fragments.add(setupFragment);
         fragments.add(advertiseFragment);
@@ -90,7 +96,7 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
 
         mAdapter = new MainPagerAdapter(getSupportFragmentManager(), fragments, MainActivity.this);
         mViewPager.setAdapter(mAdapter);
-        mViewPager.setOffscreenPageLimit(0);
+        mViewPager.setOffscreenPageLimit(4);
         mViewPager.setPagingEnabled(true);
 
         mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
@@ -117,6 +123,16 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
 
             }
         });
+    }
+
+    @Override
+    public void updateAdvertiseRecyclerView(ArrayList<Device> connections) {
+        advertiseFragment.updateRecyclerView(connections);
+    }
+
+    @Override
+    public void updateDiscoveryRecyclerView(ArrayList<Device> connections) {
+        discoverFragment.updateRecyclerView(connections);
     }
 
     @Override
