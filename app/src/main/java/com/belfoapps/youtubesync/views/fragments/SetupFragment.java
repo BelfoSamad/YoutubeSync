@@ -14,17 +14,22 @@ import com.belfoapps.youtubesync.di.components.MVPComponent;
 import com.belfoapps.youtubesync.di.modules.ApplicationModule;
 import com.belfoapps.youtubesync.di.modules.MVPModule;
 import com.belfoapps.youtubesync.presenters.SetupPresenter;
+import com.belfoapps.youtubesync.utils.Config;
+import com.belfoapps.youtubesync.views.activities.MainActivity;
+import com.belfoapps.youtubesync.views.ui.custom.FragmentLifeCycle;
 
 import java.util.Objects;
 
 import javax.inject.Inject;
 
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
-public class SetupFragment extends Fragment implements SetupContract.View {
+public class SetupFragment extends Fragment implements SetupContract.View, FragmentLifeCycle {
     private static final String TAG = "SetupFragment";
     /**************************************** Declarations ****************************************/
     private MVPComponent mvpComponent;
+    private MainActivity mView;
     @Inject
     SetupPresenter mPresenter;
 
@@ -33,8 +38,20 @@ public class SetupFragment extends Fragment implements SetupContract.View {
         // Required empty public constructor
     }
 
+    public SetupFragment(MainActivity mView) {
+        this.mView = mView;
+    }
     /**************************************** View Declarations ***********************************/
     /**************************************** Click Listeners *************************************/
+    @OnClick(R.id.discover)
+    public void discover() {
+        mView.nextStep(Config.DISCOVER_STEP);
+    }
+
+    @OnClick(R.id.advertise)
+    public void advertise() {
+        mView.nextStep(Config.ADVERTISE_STEP);
+    }
 
     /**************************************** Essential Methods ***********************************/
     @Override
@@ -66,6 +83,16 @@ public class SetupFragment extends Fragment implements SetupContract.View {
                     .build();
         }
         return mvpComponent;
+    }
+
+    @Override
+    public void onStartFragment() {
+
+    }
+
+    @Override
+    public void onStopFragment() {
+
     }
 
     /**************************************** Methods *********************************************/

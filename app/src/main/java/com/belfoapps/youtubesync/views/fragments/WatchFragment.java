@@ -1,6 +1,7 @@
 package com.belfoapps.youtubesync.views.fragments;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,14 +15,21 @@ import com.belfoapps.youtubesync.di.components.MVPComponent;
 import com.belfoapps.youtubesync.di.modules.ApplicationModule;
 import com.belfoapps.youtubesync.di.modules.MVPModule;
 import com.belfoapps.youtubesync.presenters.WatchPresenter;
+import com.belfoapps.youtubesync.views.ui.custom.FragmentLifeCycle;
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.PlayerConstants;
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer;
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.YouTubePlayerListener;
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView;
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.ui.views.YouTubePlayerSeekBar;
 
 import java.util.Objects;
 
 import javax.inject.Inject;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class WatchFragment extends Fragment implements WatchContract.View {
+public class WatchFragment extends Fragment implements WatchContract.View, FragmentLifeCycle {
     private static final String TAG = "WatchFragment";
     /**************************************** Declarations ****************************************/
     private MVPComponent mvpComponent;
@@ -34,6 +42,8 @@ public class WatchFragment extends Fragment implements WatchContract.View {
     }
 
     /**************************************** View Declarations ***********************************/
+    @BindView(R.id.player)
+    YouTubePlayerView player;
     /**************************************** Click Listeners *************************************/
 
     /**************************************** Essential Methods ***********************************/
@@ -54,6 +64,58 @@ public class WatchFragment extends Fragment implements WatchContract.View {
         //Attach View To Presenter
         mPresenter.attach(this);
 
+        player.addYouTubePlayerListener(new YouTubePlayerListener() {
+            @Override
+            public void onReady(YouTubePlayer youTubePlayer) {
+                youTubePlayer.loadVideo("IVP34jKIrTQ", 0);
+            }
+
+            @Override
+            public void onStateChange(YouTubePlayer youTubePlayer, PlayerConstants.PlayerState playerState) {
+                Log.d(TAG, "onStateChange: " + playerState);
+            }
+
+            @Override
+            public void onPlaybackQualityChange(YouTubePlayer youTubePlayer, PlayerConstants.PlaybackQuality playbackQuality) {
+
+            }
+
+            @Override
+            public void onPlaybackRateChange(YouTubePlayer youTubePlayer, PlayerConstants.PlaybackRate playbackRate) {
+
+            }
+
+            @Override
+            public void onError(YouTubePlayer youTubePlayer, PlayerConstants.PlayerError playerError) {
+
+            }
+
+            @Override
+            public void onCurrentSecond(YouTubePlayer youTubePlayer, float v) {
+                Log.d(TAG, "onCurrentSecond: " + v);
+            }
+
+            @Override
+            public void onVideoDuration(YouTubePlayer youTubePlayer, float v) {
+
+            }
+
+            @Override
+            public void onVideoLoadedFraction(YouTubePlayer youTubePlayer, float v) {
+
+            }
+
+            @Override
+            public void onVideoId(YouTubePlayer youTubePlayer, String s) {
+
+            }
+
+            @Override
+            public void onApiChange(YouTubePlayer youTubePlayer) {
+
+            }
+        });
+
         return view;
     }
 
@@ -67,6 +129,16 @@ public class WatchFragment extends Fragment implements WatchContract.View {
                     .build();
         }
         return mvpComponent;
+    }
+
+    @Override
+    public void onStartFragment() {
+
+    }
+
+    @Override
+    public void onStopFragment() {
+
     }
 
     /**************************************** Methods *********************************************/

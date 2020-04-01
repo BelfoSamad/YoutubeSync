@@ -4,6 +4,7 @@ import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.viewpager.widget.ViewPager;
 
 import com.belfoapps.youtubesync.R;
 import com.belfoapps.youtubesync.contracts.MainContract;
@@ -17,6 +18,7 @@ import com.belfoapps.youtubesync.views.fragments.DiscoverFragment;
 import com.belfoapps.youtubesync.views.fragments.SetupFragment;
 import com.belfoapps.youtubesync.views.fragments.WatchFragment;
 import com.belfoapps.youtubesync.views.ui.adapters.MainPagerAdapter;
+import com.belfoapps.youtubesync.views.ui.custom.FragmentLifeCycle;
 import com.belfoapps.youtubesync.views.ui.custom.UnScrollableViewPager;
 
 import java.util.ArrayList;
@@ -76,20 +78,45 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
     public void initViewPager() {
         ArrayList<Fragment> fragments = new ArrayList<>();
 
-        SetupFragment setupFragment = new SetupFragment();
-        DiscoverFragment discoverFragment = new DiscoverFragment();
-        AdvertiseFragment advertiseFragment = new AdvertiseFragment();
+        SetupFragment setupFragment = new SetupFragment(this);
+        DiscoverFragment discoverFragment = new DiscoverFragment(this);
+        AdvertiseFragment advertiseFragment = new AdvertiseFragment(this);
         WatchFragment watchFragment = new WatchFragment();
 
         fragments.add(setupFragment);
-        fragments.add(discoverFragment);
         fragments.add(advertiseFragment);
+        fragments.add(discoverFragment);
         fragments.add(watchFragment);
 
         mAdapter = new MainPagerAdapter(getSupportFragmentManager(), fragments, MainActivity.this);
         mViewPager.setAdapter(mAdapter);
         mViewPager.setOffscreenPageLimit(0);
         mViewPager.setPagingEnabled(true);
+
+        mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            int currentPosition = 0;
+
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                FragmentLifeCycle fragmentToShow = (FragmentLifeCycle) mAdapter.getItem(position);
+                fragmentToShow.onStartFragment();
+
+                FragmentLifeCycle fragmentToHide = (FragmentLifeCycle) mAdapter.getItem(currentPosition);
+                fragmentToHide.onStopFragment();
+
+                currentPosition = position;
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
     }
 
     @Override
