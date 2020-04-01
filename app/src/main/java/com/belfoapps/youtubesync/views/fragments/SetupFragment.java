@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 
 import androidx.fragment.app.Fragment;
 
@@ -22,6 +23,7 @@ import java.util.Objects;
 
 import javax.inject.Inject;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
@@ -42,6 +44,9 @@ public class SetupFragment extends Fragment implements SetupContract.View, Fragm
         this.mView = mView;
     }
     /**************************************** View Declarations ***********************************/
+    @BindView(R.id.youtub_url)
+    EditText youtube_url;
+
     /**************************************** Click Listeners *************************************/
     @OnClick(R.id.discover)
     public void discover() {

@@ -8,6 +8,7 @@ public class Config {
     public static final int ADVERTISE_STEP = 1;
     public static final int DISCOVER_STEP = 2;
     public static final int WATCH_STEP = 3;
+    public static final String SERVICE_ID = "YoutubeSync";
 
     //Essentials
     private static final String GDPR = "Gdpr";

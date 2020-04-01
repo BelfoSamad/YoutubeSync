@@ -10,6 +10,7 @@ import com.belfoapps.youtubesync.presenters.DiscoverPresenter;
 import com.belfoapps.youtubesync.presenters.MainPresenter;
 import com.belfoapps.youtubesync.presenters.SetupPresenter;
 import com.belfoapps.youtubesync.presenters.WatchPresenter;
+import com.belfoapps.youtubesync.utils.ReceiveBytesPayloadListener;
 import com.google.gson.Gson;
 
 import javax.inject.Singleton;
@@ -55,8 +56,8 @@ public class MVPModule {
 
     @Provides
     @Singleton
-    DiscoverPresenter providesDiscoverPresenter() {
-        return new DiscoverPresenter();
+    DiscoverPresenter providesDiscoverPresenter(ReceiveBytesPayloadListener payloadCallback) {
+        return new DiscoverPresenter(payloadCallback);
     }
 
     @Provides
@@ -67,7 +68,7 @@ public class MVPModule {
 
     @Provides
     @Singleton
-    AdvertisePresenter providesAdvertisePresenter() {
-        return new AdvertisePresenter();
+    AdvertisePresenter providesAdvertisePresenter(ReceiveBytesPayloadListener payloadCallback) {
+        return new AdvertisePresenter(payloadCallback);
     }
 }
