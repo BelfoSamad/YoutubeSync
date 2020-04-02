@@ -33,6 +33,8 @@ public class MainPresenter implements MainContract.Presenter {
     /***************************************** Declarations ***************************************/
     private MainActivity mView;
     private SharedPreferencesHelper mSharedPrefs;
+    private String youtube_video_url;
+    private String mode;
     private ReceiveBytesPayloadListener payLoadCallback;
     private ConnectionLifecycleCallback advertiserConnectionCallback;
     private ConnectionLifecycleCallback discovererConnectionCallback;
@@ -54,11 +56,7 @@ public class MainPresenter implements MainContract.Presenter {
                 if (discoverers == null)
                     discoverers = new ArrayList<>();
 
-                Log.d(TAG, "onConnectionInitiated: " + endpointId);
-
-                Log.d(TAG, "onConnectionInitiated: ");
                 discoverers.add(new Device(connectionInfo.getEndpointName(), endpointId));
-                Log.d(TAG, "onConnectionInitiated: " + discoverers.size());
 
                 mView.updateAdvertiseRecyclerView(discoverers);
             }
@@ -90,14 +88,15 @@ public class MainPresenter implements MainContract.Presenter {
         discovererConnectionCallback = new ConnectionLifecycleCallback() {
             @Override
             public void onConnectionInitiated(@NonNull String endpointId, @NonNull ConnectionInfo connectionInfo) {
-
+                Log.d(TAG, "onConnectionInitiated: Connection Accepted By the Advertiser");
+                Nearby.getConnectionsClient(context).acceptConnection(endpointId, payLoadCallback);
             }
 
             @Override
             public void onConnectionResult(@NonNull String endpointId, @NonNull ConnectionResolution result) {
                 switch (result.getStatus().getStatusCode()) {
                     case ConnectionsStatusCodes.STATUS_OK: {
-                        Log.d(TAG, "onConnectionResult: Connection OK!");
+                        Toast.makeText(context, "Connection Accepted", Toast.LENGTH_SHORT).show();
                     }
                     break;
                     case ConnectionsStatusCodes.STATUS_CONNECTION_REJECTED:
@@ -123,8 +122,6 @@ public class MainPresenter implements MainContract.Presenter {
                 if (advertisers == null)
                     advertisers = new ArrayList<>();
 
-                Toast.makeText(context, endpointId, Toast.LENGTH_SHORT).show();
-
                 advertisers.add(new Device(info.getEndpointName(), endpointId));
 
                 mView.updateDiscoveryRecyclerView(advertisers);
@@ -141,6 +138,8 @@ public class MainPresenter implements MainContract.Presenter {
     @Override
     public void attach(MainContract.View view) {
         mView = (MainActivity) view;
+        payLoadCallback.setPresenter(this);
+        payLoadCallback.setupView(mView);
     }
 
     @Override
@@ -155,6 +154,17 @@ public class MainPresenter implements MainContract.Presenter {
 
     /***************************************** Methods ********************************************/
     @Override
+    public void setMode(String mode) {
+        this.mode = mode;
+    }
+
+    @Override
+    public void setYoutubeVideoUrl(String url) {
+        Log.d(TAG, "setYoutubeVideoUrl: " + url);
+        youtube_video_url = url;
+    }
+
+    @Override
     public void startDiscovering() {
         DiscoveryOptions discoveryOptions =
                 new DiscoveryOptions.Builder().setStrategy(Strategy.P2P_STAR).build();
@@ -162,10 +172,10 @@ public class MainPresenter implements MainContract.Presenter {
         Nearby.getConnectionsClient(context)
                 .startDiscovery(Config.SERVICE_ID, discoveryEndpointCallback, discoveryOptions)
                 .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(context, "Discovery Succeeded", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(context, "Discovery Succeeded", Toast.LENGTH_SHORT).show();
                 })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(context, "Discovery Failed", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(context, "Discovery Failed", Toast.LENGTH_SHORT).show();
                 });
 
     }
@@ -180,11 +190,11 @@ public class MainPresenter implements MainContract.Presenter {
                         Build.MANUFACTURER + "-" + Build.MODEL, Config.SERVICE_ID, advertiserConnectionCallback, advertisingOptions)
                 .addOnSuccessListener(
                         (Void unused) -> {
-                            Toast.makeText(context, "Advertising Succeed", Toast.LENGTH_SHORT).show();
+                            //Toast.makeText(context, "Advertising Succeed", Toast.LENGTH_SHORT).show();
                         })
                 .addOnFailureListener(
                         (Exception e) -> {
-                            Toast.makeText(context, "Advertising Failed", Toast.LENGTH_SHORT).show();
+                            //Toast.makeText(context, "Advertising Failed", Toast.LENGTH_SHORT).show();
                         });
     }
 
@@ -204,28 +214,49 @@ public class MainPresenter implements MainContract.Presenter {
                 .requestConnection(Config.DEVICE_NAME, advertisers.get(position).getEndPoint(), discovererConnectionCallback)
                 .addOnSuccessListener(
                         (Void unused) -> {
-                            Log.d(TAG, "onEndpointFound: Requested Connection successfully");
+                            //Log.d(TAG, "onEndpointFound: Requested Connection successfully");
                         })
                 .addOnFailureListener(
                         (Exception e) -> {
-                            Log.d(TAG, "onEndpointFound: Couldn't request connection");
+                            //Log.d(TAG, "onEndpointFound: Couldn't request connection");
                         });
     }
 
     @Override
     public void acceptConnection(int position) {
-        Log.d(TAG, "acceptConnection: " + discoverers.get(position).getEndPoint());
         Nearby.getConnectionsClient(context).acceptConnection(discoverers.get(position).getEndPoint(), payLoadCallback);
     }
 
     @Override
-    public void sendMessage() {
-        Log.d(TAG, "sendMessage: Sending a Message");
+    public void sendYoutubeUrl() {
+        String url = Config.URL + ":" + youtube_video_url;
+        Log.d(TAG, "sendYoutubeUrl: " + url);
         for (Device discoverer :
                 discoverers) {
-            Payload bytesPayload = Payload.fromBytes(new byte[]{0xa, 0xb, 0xc, 0xd});
+            Payload bytesPayload = Payload.fromBytes(url.getBytes());
             Nearby.getConnectionsClient(context).sendPayload(discoverer.getEndPoint(), bytesPayload);
         }
+    }
+
+    @Override
+    public void sendRequest(String type, float time) {
+        String msg = type + ":" + time;
+        Log.d(TAG, "sendRequest: " + msg);
+        for (Device discoverer :
+                discoverers) {
+            Payload bytesPayload = Payload.fromBytes(msg.getBytes());
+            Nearby.getConnectionsClient(context).sendPayload(discoverer.getEndPoint(), bytesPayload);
+        }
+    }
+
+    @Override
+    public String getYoutubeVideoUrl() {
+        return youtube_video_url;
+    }
+
+    @Override
+    public String getMode() {
+        return mode;
     }
 
 }

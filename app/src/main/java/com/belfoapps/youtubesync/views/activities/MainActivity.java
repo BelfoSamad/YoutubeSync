@@ -84,7 +84,7 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
     public void initViewPager() {
         ArrayList<Fragment> fragments = new ArrayList<>();
 
-        setupFragment = new SetupFragment(this);
+        setupFragment = new SetupFragment(this, mPresenter);
         discoverFragment = new DiscoverFragment(this, mPresenter);
         advertiseFragment = new AdvertiseFragment(this, mPresenter);
         watchFragment = new WatchFragment(mPresenter);
@@ -138,5 +138,25 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
     @Override
     public void nextStep(int position) {
         mViewPager.setCurrentItem(position);
+    }
+
+    @Override
+    public void initYoutube(String url) {
+        watchFragment.initYoutubeVideo(url);
+    }
+
+    @Override
+    public void startYoutubeVideo(float timestamp) {
+        watchFragment.startVideo(timestamp);
+    }
+
+    @Override
+    public void pauseYoutubeVideo(float timestamp) {
+        watchFragment.pauseVideo(timestamp);
+    }
+
+    @Override
+    public void seekToYoutubeVideo(float seekTo) {
+        watchFragment.seekTo(seekTo);
     }
 }

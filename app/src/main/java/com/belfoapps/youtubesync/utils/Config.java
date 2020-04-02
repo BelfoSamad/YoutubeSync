@@ -12,6 +12,17 @@ public class Config {
     public static final String SERVICE_ID = "YoutubeSync";
     public static final String DEVICE_NAME = Build.MANUFACTURER + "-" + Build.MODEL;
 
+    //Requests
+    public static final String URL = "url";
+    public static final String PAUSE = "Pause";
+    public static final String START = "Start";
+    public static final String BUFFER = "Buffering";
+    public static final String SEEK = "Seek";
+
+    //Modes
+    public static final String ADVERTISE = "Advertise";
+    public static final String DISCOVER = "Discover";
+
     //Essentials
     private static final String GDPR = "Gdpr";
     private static final String BANNER = "Banner";

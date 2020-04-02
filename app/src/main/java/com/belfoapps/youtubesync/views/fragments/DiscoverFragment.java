@@ -46,11 +46,6 @@ public class DiscoverFragment extends Fragment implements FragmentLifeCycle {
     RecyclerView mRecyclerView;
 
     /**************************************** Click Listeners *************************************/
-    @OnClick(R.id.watch)
-    void goToWatch() {
-        mView.nextStep(Config.WATCH_STEP);
-    }
-
     /**************************************** Essential Methods ***********************************/
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -74,7 +69,6 @@ public class DiscoverFragment extends Fragment implements FragmentLifeCycle {
 
     @Override
     public void onStopFragment() {
-        mPresenter.startDiscovering();
     }
 
     /**************************************** Methods *********************************************/

@@ -10,6 +10,10 @@ public interface MainContract {
 
     interface Presenter extends BasePresenter<View> {
 
+        void setMode(String mode);
+
+        void setYoutubeVideoUrl(String url);
+
         void startDiscovering();
 
         void startAdvertising();
@@ -22,7 +26,13 @@ public interface MainContract {
 
         void acceptConnection(int position);
 
-        void sendMessage();
+        void sendYoutubeUrl();
+
+        void sendRequest(String type, float time);
+
+        String getYoutubeVideoUrl();
+
+        String getMode();
 
     }
 
@@ -35,6 +45,14 @@ public interface MainContract {
         void updateDiscoveryRecyclerView(ArrayList<Device> connections);
 
         void nextStep(int position);
+
+        void initYoutube(String url);
+
+        void startYoutubeVideo(float timestamp);
+
+        void pauseYoutubeVideo(float timestamp);
+
+        void seekToYoutubeVideo(float seekTo);
 
     }
 
