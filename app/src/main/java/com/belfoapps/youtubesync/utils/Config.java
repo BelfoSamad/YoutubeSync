@@ -4,6 +4,7 @@ import android.content.SharedPreferences;
 import android.os.Build;
 
 public class Config {
+    public static final String YOUTUBE_API_KEY = "AIzaSyC6ApzYRyl40uDNLTLdS21JicBpByH--_g";
     //Steps
     public static final int SETUP_STEP = 0;
     public static final int ADVERTISE_STEP = 1;

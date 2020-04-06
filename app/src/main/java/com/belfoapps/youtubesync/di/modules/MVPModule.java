@@ -6,6 +6,7 @@ import android.content.Context;
 import com.belfoapps.youtubesync.di.annotations.ActivityContext;
 import com.belfoapps.youtubesync.models.SharedPreferencesHelper;
 import com.belfoapps.youtubesync.presenters.MainPresenter;
+import com.belfoapps.youtubesync.presenters.WatchPresenter;
 import com.belfoapps.youtubesync.utils.ReceiveBytesPayloadListener;
 
 import javax.inject.Singleton;
@@ -39,7 +40,14 @@ public class MVPModule {
 
     @Provides
     @Singleton
-    MainPresenter providesMainPresenter(@ActivityContext Context context, ReceiveBytesPayloadListener payloadCallback, SharedPreferencesHelper mSharedPrefs) {
-        return new MainPresenter(context, payloadCallback, mSharedPrefs);
+    WatchPresenter providesWatchPresenter() {
+        return new WatchPresenter();
+    }
+
+    @Provides
+    @Singleton
+    MainPresenter providesMainPresenter(@ActivityContext Context context, ReceiveBytesPayloadListener payloadCallback,
+                                        SharedPreferencesHelper mSharedPrefs, WatchPresenter watchPresenter) {
+        return new MainPresenter(context, payloadCallback, mSharedPrefs, watchPresenter);
     }
 }

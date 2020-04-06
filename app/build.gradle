@@ -40,6 +40,9 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 
+    //RXJava
+    implementation 'io.reactivex.rxjava3:rxjava:3.0.0'
+
     //Multidex
     implementation 'androidx.multidex:multidex:2.0.1'
 
@@ -56,9 +59,6 @@ dependencies {
 
     //Gson
     implementation 'com.google.code.gson:gson:2.8.6'
-
-    //Youtube Custom Player Api
-    implementation 'com.pierfrancescosoffritti.androidyoutubeplayer:core:10.0.5'
 
     //Device Nearby
     implementation 'com.google.android.gms:play-services-nearby:17.0.0'

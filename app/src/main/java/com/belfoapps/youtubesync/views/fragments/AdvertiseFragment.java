@@ -50,7 +50,7 @@ public class AdvertiseFragment extends Fragment implements FragmentLifeCycle {
     @OnClick(R.id.watch)
     void goToWatch() {
         mPresenter.sendYoutubeUrl();
-        mView.nextStep(Config.WATCH_STEP);
+        mView.goToWatchActivity(mPresenter.getYoutubeVideoUrl(), mPresenter.getDiscoverers());
     }
 
     /**************************************** Essential Methods ***********************************/

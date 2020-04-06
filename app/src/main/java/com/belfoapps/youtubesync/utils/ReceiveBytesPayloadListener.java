@@ -1,14 +1,22 @@
 package com.belfoapps.youtubesync.utils;
 
+import android.content.Intent;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 
 import com.belfoapps.youtubesync.presenters.MainPresenter;
+import com.belfoapps.youtubesync.presenters.WatchPresenter;
 import com.belfoapps.youtubesync.views.activities.MainActivity;
+import com.belfoapps.youtubesync.views.activities.WatchActivity;
 import com.google.android.gms.nearby.connection.Payload;
 import com.google.android.gms.nearby.connection.PayloadCallback;
 import com.google.android.gms.nearby.connection.PayloadTransferUpdate;
+
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.ObservableEmitter;
+import io.reactivex.rxjava3.core.ObservableOnSubscribe;
+import io.reactivex.rxjava3.core.Observer;
 
 public class ReceiveBytesPayloadListener extends PayloadCallback {
     private static final String TAG = "ReceiveBytesPayloadList";
@@ -32,24 +40,12 @@ public class ReceiveBytesPayloadListener extends PayloadCallback {
         String type = msg.split(":")[0];
         String value = msg.split(":")[1];
 
-        switch (type) {
-            case Config.URL: {
-                mPresenter.setYoutubeVideoUrl(value);
-                mView.nextStep(Config.WATCH_STEP);
-            }
-            break;
-            case Config.START:
-                mView.startYoutubeVideo(Float.parseFloat(value));
-                break;
-            case Config.PAUSE:
-                mView.pauseYoutubeVideo(Float.parseFloat(value));
-                break;
-            case Config.SEEK:
-                mView.seekToYoutubeVideo(Float.parseFloat(value));
-                break;
-            case Config.BUFFER:
-                mView.pauseYoutubeVideo(Float.parseFloat(value));
-                break;
+        if (type.equals(Config.URL)){
+            Intent intent = new Intent(mView, WatchActivity.class);
+            intent.putExtra("url", value);
+            mView.startActivity(intent);
+        }else {
+            mPresenter.getRequest(type, Integer.parseInt(value));
         }
     }
 

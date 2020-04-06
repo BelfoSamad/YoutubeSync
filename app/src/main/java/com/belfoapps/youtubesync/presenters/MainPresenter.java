@@ -8,12 +8,14 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 
 import com.belfoapps.youtubesync.contracts.MainContract;
+import com.belfoapps.youtubesync.contracts.WatchContract;
 import com.belfoapps.youtubesync.di.annotations.ActivityContext;
 import com.belfoapps.youtubesync.models.SharedPreferencesHelper;
 import com.belfoapps.youtubesync.pojo.Device;
 import com.belfoapps.youtubesync.utils.Config;
 import com.belfoapps.youtubesync.utils.ReceiveBytesPayloadListener;
 import com.belfoapps.youtubesync.views.activities.MainActivity;
+import com.belfoapps.youtubesync.views.activities.WatchActivity;
 import com.google.android.gms.nearby.Nearby;
 import com.google.android.gms.nearby.connection.AdvertisingOptions;
 import com.google.android.gms.nearby.connection.ConnectionInfo;
@@ -28,10 +30,15 @@ import com.google.android.gms.nearby.connection.Strategy;
 
 import java.util.ArrayList;
 
+import io.reactivex.rxjava3.core.Observer;
+import io.reactivex.rxjava3.disposables.Disposable;
+
 public class MainPresenter implements MainContract.Presenter {
     private static final String TAG = "MainPresenter";
     /***************************************** Declarations ***************************************/
     private MainActivity mView;
+    private WatchActivity mView1;
+    private WatchPresenter watchPresenter;
     private SharedPreferencesHelper mSharedPrefs;
     private String youtube_video_url;
     private String mode;
@@ -41,11 +48,14 @@ public class MainPresenter implements MainContract.Presenter {
     private EndpointDiscoveryCallback discoveryEndpointCallback;
     private ArrayList<Device> advertisers;
     private ArrayList<Device> discoverers;
+    private ArrayList<String> discos;
     private Context context;
 
     /***************************************** Constructor ****************************************/
-    public MainPresenter(@ActivityContext Context context, ReceiveBytesPayloadListener payLoadCallback, SharedPreferencesHelper mSharedPrefs) {
+    public MainPresenter(@ActivityContext Context context, ReceiveBytesPayloadListener payLoadCallback, SharedPreferencesHelper mSharedPrefs,
+                         WatchPresenter watchPresenter) {
 
+        this.watchPresenter = watchPresenter;
         this.mSharedPrefs = mSharedPrefs;
         this.context = context;
         this.payLoadCallback = payLoadCallback;
@@ -57,6 +67,10 @@ public class MainPresenter implements MainContract.Presenter {
                     discoverers = new ArrayList<>();
 
                 discoverers.add(new Device(connectionInfo.getEndpointName(), endpointId));
+
+                if (discos == null)
+                    discos = new ArrayList<>();
+                discos.add(endpointId);
 
                 mView.updateAdvertiseRecyclerView(discoverers);
             }
@@ -138,8 +152,8 @@ public class MainPresenter implements MainContract.Presenter {
     @Override
     public void attach(MainContract.View view) {
         mView = (MainActivity) view;
-        payLoadCallback.setPresenter(this);
         payLoadCallback.setupView(mView);
+        payLoadCallback.setPresenter(this);
     }
 
     @Override
@@ -150,6 +164,11 @@ public class MainPresenter implements MainContract.Presenter {
     @Override
     public boolean isAttached() {
         return !(mView == null);
+    }
+
+    @Override
+    public void attachWatchView(WatchContract.View view) {
+        mView1 = (WatchActivity) view;
     }
 
     /***************************************** Methods ********************************************/
@@ -214,11 +233,11 @@ public class MainPresenter implements MainContract.Presenter {
                 .requestConnection(Config.DEVICE_NAME, advertisers.get(position).getEndPoint(), discovererConnectionCallback)
                 .addOnSuccessListener(
                         (Void unused) -> {
-                            //Log.d(TAG, "onEndpointFound: Requested Connection successfully");
+                            Log.d(TAG, "onEndpointFound: Requested Connection successfully");
                         })
                 .addOnFailureListener(
                         (Exception e) -> {
-                            //Log.d(TAG, "onEndpointFound: Couldn't request connection");
+                            Log.d(TAG, "onEndpointFound: Couldn't request connection");
                         });
     }
 
@@ -230,23 +249,12 @@ public class MainPresenter implements MainContract.Presenter {
     @Override
     public void sendYoutubeUrl() {
         String url = Config.URL + ":" + youtube_video_url;
-        Log.d(TAG, "sendYoutubeUrl: " + url);
-        for (Device discoverer :
-                discoverers) {
-            Payload bytesPayload = Payload.fromBytes(url.getBytes());
-            Nearby.getConnectionsClient(context).sendPayload(discoverer.getEndPoint(), bytesPayload);
-        }
-    }
-
-    @Override
-    public void sendRequest(String type, float time) {
-        String msg = type + ":" + time;
-        Log.d(TAG, "sendRequest: " + msg);
-        for (Device discoverer :
-                discoverers) {
-            Payload bytesPayload = Payload.fromBytes(msg.getBytes());
-            Nearby.getConnectionsClient(context).sendPayload(discoverer.getEndPoint(), bytesPayload);
-        }
+        if (discoverers != null)
+            for (Device discoverer :
+                    discoverers) {
+                Payload bytesPayload = Payload.fromBytes(url.getBytes());
+                Nearby.getConnectionsClient(context).sendPayload(discoverer.getEndPoint(), bytesPayload);
+            }
     }
 
     @Override
@@ -255,8 +263,35 @@ public class MainPresenter implements MainContract.Presenter {
     }
 
     @Override
-    public String getMode() {
-        return mode;
+    public ArrayList<String> getDiscoverers() {
+        return discos;
+    }
+
+    @Override
+    public void sendRequest(String type, int time) {
+        String msg = type + ":" + time;
+        Log.d(TAG, "sendRequest: " + msg);
+        for (String discoverer :
+                discos) {
+            Payload bytesPayload = Payload.fromBytes(msg.getBytes());
+            Nearby.getConnectionsClient(mView).sendPayload(discoverer, bytesPayload);
+        }
+    }
+
+    @Override
+    public void getRequest(String type, int time) {
+        Log.d(TAG, "getRequest: " + type);
+        switch (type) {
+            case Config.START:
+                mView1.startYoutubeVideo(time);
+                break;
+            case Config.PAUSE:
+                mView1.pauseYoutubeVideo(time);
+                break;
+            case Config.SEEK:
+                mView1.seekToYoutubeVideo(time);
+                break;
+        }
     }
 
 }

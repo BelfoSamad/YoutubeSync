@@ -1,5 +1,6 @@
 package com.belfoapps.youtubesync.views.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -14,10 +15,10 @@ import com.belfoapps.youtubesync.di.modules.ApplicationModule;
 import com.belfoapps.youtubesync.di.modules.MVPModule;
 import com.belfoapps.youtubesync.pojo.Device;
 import com.belfoapps.youtubesync.presenters.MainPresenter;
+import com.belfoapps.youtubesync.utils.Config;
 import com.belfoapps.youtubesync.views.fragments.AdvertiseFragment;
 import com.belfoapps.youtubesync.views.fragments.DiscoverFragment;
 import com.belfoapps.youtubesync.views.fragments.SetupFragment;
-import com.belfoapps.youtubesync.views.fragments.WatchFragment;
 import com.belfoapps.youtubesync.views.ui.adapters.MainPagerAdapter;
 import com.belfoapps.youtubesync.views.ui.custom.FragmentLifeCycle;
 import com.belfoapps.youtubesync.views.ui.custom.UnScrollableViewPager;
@@ -39,7 +40,6 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
     private SetupFragment setupFragment;
     private DiscoverFragment discoverFragment;
     private AdvertiseFragment advertiseFragment;
-    private WatchFragment watchFragment;
 
     /**************************************** View Declarations ***********************************/
     @BindView(R.id.viewpager)
@@ -87,12 +87,10 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
         setupFragment = new SetupFragment(this, mPresenter);
         discoverFragment = new DiscoverFragment(this, mPresenter);
         advertiseFragment = new AdvertiseFragment(this, mPresenter);
-        watchFragment = new WatchFragment(mPresenter);
 
         fragments.add(setupFragment);
         fragments.add(advertiseFragment);
         fragments.add(discoverFragment);
-        fragments.add(watchFragment);
 
         mAdapter = new MainPagerAdapter(getSupportFragmentManager(), fragments, MainActivity.this);
         mViewPager.setAdapter(mAdapter);
@@ -141,22 +139,10 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
     }
 
     @Override
-    public void initYoutube(String url) {
-        watchFragment.initYoutubeVideo(url);
-    }
-
-    @Override
-    public void startYoutubeVideo(float timestamp) {
-        watchFragment.startVideo(timestamp);
-    }
-
-    @Override
-    public void pauseYoutubeVideo(float timestamp) {
-        watchFragment.pauseVideo(timestamp);
-    }
-
-    @Override
-    public void seekToYoutubeVideo(float seekTo) {
-        watchFragment.seekTo(seekTo);
+    public void goToWatchActivity(String url, ArrayList<String> discoverers) {
+        Intent intent = new Intent(MainActivity.this, WatchActivity.class);
+        intent.putExtra("url", url);
+        intent.putStringArrayListExtra("discoverers", discoverers);
+        startActivity(intent);
     }
 }
