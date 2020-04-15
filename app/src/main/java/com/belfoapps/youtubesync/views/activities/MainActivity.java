@@ -1,7 +1,7 @@
 package com.belfoapps.youtubesync.views.activities;
 
-import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
@@ -15,10 +15,10 @@ import com.belfoapps.youtubesync.di.modules.ApplicationModule;
 import com.belfoapps.youtubesync.di.modules.MVPModule;
 import com.belfoapps.youtubesync.pojo.Device;
 import com.belfoapps.youtubesync.presenters.MainPresenter;
-import com.belfoapps.youtubesync.utils.Config;
 import com.belfoapps.youtubesync.views.fragments.AdvertiseFragment;
 import com.belfoapps.youtubesync.views.fragments.DiscoverFragment;
 import com.belfoapps.youtubesync.views.fragments.SetupFragment;
+import com.belfoapps.youtubesync.views.fragments.WatchFragment;
 import com.belfoapps.youtubesync.views.ui.adapters.MainPagerAdapter;
 import com.belfoapps.youtubesync.views.ui.custom.FragmentLifeCycle;
 import com.belfoapps.youtubesync.views.ui.custom.UnScrollableViewPager;
@@ -40,6 +40,7 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
     private SetupFragment setupFragment;
     private DiscoverFragment discoverFragment;
     private AdvertiseFragment advertiseFragment;
+    private WatchFragment watchFragment;
 
     /**************************************** View Declarations ***********************************/
     @BindView(R.id.viewpager)
@@ -68,6 +69,23 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
     }
 
     @Override
+    public void onBackPressed() {
+        //TODO: add double click to quit
+        if (mViewPager.getCurrentItem() != 0) {
+
+            //Go Back t setup
+            mViewPager.setCurrentItem(0);
+
+            //Disconnect from all
+            mPresenter.disconnectAll();
+
+            //Stop Advertising/Discovering
+            mPresenter.stopAdvertising();
+            mPresenter.stopDiscovering();
+        }
+    }
+
+    @Override
     public MVPComponent getComponent() {
         if (mvpComponent == null) {
             mvpComponent = DaggerMVPComponent
@@ -82,15 +100,18 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
     /**************************************** Methods *********************************************/
     @Override
     public void initViewPager() {
+        Log.d(TAG, "initViewPager");
         ArrayList<Fragment> fragments = new ArrayList<>();
 
         setupFragment = new SetupFragment(this, mPresenter);
         discoverFragment = new DiscoverFragment(this, mPresenter);
         advertiseFragment = new AdvertiseFragment(this, mPresenter);
+        watchFragment = new WatchFragment(this, mPresenter);
 
         fragments.add(setupFragment);
         fragments.add(advertiseFragment);
         fragments.add(discoverFragment);
+        fragments.add(watchFragment);
 
         mAdapter = new MainPagerAdapter(getSupportFragmentManager(), fragments, MainActivity.this);
         mViewPager.setAdapter(mAdapter);
@@ -139,10 +160,27 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
     }
 
     @Override
-    public void goToWatchActivity(String url, ArrayList<String> discoverers) {
-        Intent intent = new Intent(MainActivity.this, WatchActivity.class);
-        intent.putExtra("url", url);
-        intent.putStringArrayListExtra("discoverers", discoverers);
-        startActivity(intent);
+    public void prevStep(int position) {
+        mViewPager.setCurrentItem(position);
+    }
+
+    @Override
+    public void startYoutubeVideo(int time) {
+        watchFragment.start(time);
+    }
+
+    @Override
+    public void pauseYoutubeVideo(int time) {
+        watchFragment.pause(time);
+    }
+
+    @Override
+    public void seekToYoutubeVideo(int time) {
+        watchFragment.seek(time);
+    }
+
+    @Override
+    public void syncYoutubeVideo(int time) {
+        watchFragment.sync(time);
     }
 }

@@ -7,11 +7,7 @@ import com.belfoapps.youtubesync.di.annotations.ActivityContext;
 import com.belfoapps.youtubesync.di.modules.ApplicationModule;
 import com.belfoapps.youtubesync.di.modules.MVPModule;
 import com.belfoapps.youtubesync.views.activities.MainActivity;
-import com.belfoapps.youtubesync.views.activities.WatchActivity;
-import com.belfoapps.youtubesync.views.fragments.AdvertiseFragment;
-import com.belfoapps.youtubesync.views.fragments.DiscoverFragment;
-import com.belfoapps.youtubesync.views.fragments.SetupFragment;
-import com.belfoapps.youtubesync.views.fragments.WatchFragment;
+import com.belfoapps.youtubesync.views.activities.SplashActivity;
 
 import javax.inject.Singleton;
 
@@ -23,7 +19,7 @@ public interface MVPComponent {
 
     //Inject in Activities
     void inject(MainActivity mainActivity);
-    void inject(WatchActivity watchActivity);
+    void inject(SplashActivity splashActivity);
 
 
     //Context

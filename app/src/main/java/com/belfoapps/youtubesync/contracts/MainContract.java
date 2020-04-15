@@ -10,9 +10,9 @@ public interface MainContract {
 
     interface Presenter extends BasePresenter<View> {
 
-        void attachWatchView(WatchContract.View view);
-
         void setMode(String mode);
+
+        void setWatchers(int count);
 
         void setYoutubeVideoUrl(String url);
 
@@ -28,16 +28,23 @@ public interface MainContract {
 
         void acceptConnection(int position);
 
+        void disconnectAll();
+
         void sendYoutubeUrl();
 
+        void sendWatchersCount();
+
         String getYoutubeVideoUrl();
+
+        String getMode();
+
+        int getWatchers();
 
         void sendRequest(String type, int time);
 
         void getRequest(String type, int time);
 
-        ArrayList<String> getDiscoverers();
-
+        ArrayList<Device> getDevicesCopy(ArrayList<Device> devices);
     }
 
     interface View extends BaseView {
@@ -50,8 +57,15 @@ public interface MainContract {
 
         void nextStep(int position);
 
-        void goToWatchActivity(String url, ArrayList<String> discoverers);
+        void prevStep(int position);
 
+        void startYoutubeVideo(int time);
+
+        void pauseYoutubeVideo(int time);
+
+        void seekToYoutubeVideo(int time);
+
+        void syncYoutubeVideo(int time);
     }
 
 }

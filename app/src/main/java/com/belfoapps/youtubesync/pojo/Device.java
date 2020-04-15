@@ -1,6 +1,8 @@
 package com.belfoapps.youtubesync.pojo;
 
-public class Device {
+import java.util.Objects;
+
+public class Device implements Cloneable {
 
     private String deviceName;
     private String endPoint;
@@ -24,5 +26,24 @@ public class Device {
 
     public void setEndPoint(String endPoint) {
         this.endPoint = endPoint;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Device device = (Device) o;
+        return Objects.equals(endPoint, device.endPoint);
+    }
+
+
+    public Object clone() {
+        Object clone = null;
+        try {
+            clone = super.clone();
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+        }
+        return clone;
     }
 }

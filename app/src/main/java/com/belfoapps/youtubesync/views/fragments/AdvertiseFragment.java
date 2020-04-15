@@ -1,7 +1,6 @@
 package com.belfoapps.youtubesync.views.fragments;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +16,7 @@ import com.belfoapps.youtubesync.utils.Config;
 import com.belfoapps.youtubesync.views.activities.MainActivity;
 import com.belfoapps.youtubesync.views.ui.adapters.DevicesAdapter;
 import com.belfoapps.youtubesync.views.ui.custom.FragmentLifeCycle;
+import com.skyfishjy.library.RippleBackground;
 
 import java.util.ArrayList;
 
@@ -45,12 +45,20 @@ public class AdvertiseFragment extends Fragment implements FragmentLifeCycle {
     /**************************************** View Declarations ***********************************/
     @BindView(R.id.recycler_view)
     RecyclerView mRecyclerView;
+    @BindView(R.id.ripple_background)
+    RippleBackground mRipple;
 
     /**************************************** Click Listeners *************************************/
     @OnClick(R.id.watch)
     void goToWatch() {
         mPresenter.sendYoutubeUrl();
-        mView.goToWatchActivity(mPresenter.getYoutubeVideoUrl(), mPresenter.getDiscoverers());
+        mPresenter.sendWatchersCount();
+        mView.nextStep(Config.WATCH_STEP);
+    }
+
+    @OnClick(R.id.back)
+    public void back() {
+        mView.onBackPressed();
     }
 
     /**************************************** Essential Methods ***********************************/
@@ -72,10 +80,12 @@ public class AdvertiseFragment extends Fragment implements FragmentLifeCycle {
     @Override
     public void onStartFragment() {
         mPresenter.startAdvertising();
+        mRipple.startRippleAnimation();
     }
 
     @Override
     public void onStopFragment() {
+        mRipple.stopRippleAnimation();
     }
 
     /**************************************** Methods *********************************************/
@@ -93,7 +103,7 @@ public class AdvertiseFragment extends Fragment implements FragmentLifeCycle {
             mAdapter.clearAll();
 
             // Adding The New List of Categories
-            mAdapter.addAll(devices);
+            mAdapter.addAll(mPresenter.getDevicesCopy(devices));
         }
     }
 }

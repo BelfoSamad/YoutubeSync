@@ -1,13 +1,13 @@
 package com.belfoapps.youtubesync.models;
 
 import android.content.SharedPreferences;
+
 import com.google.gson.Gson;
 
 public class SharedPreferencesHelper {
+    public static final String NAME = "Name";
     private static final String DARK_MODE = "Dark Mode";
-    private static final String SAVED = "Saved";
-    private static final String SHOPPING = "Shopping";
-    private static final String LAST_UPDATE = "Last Update";
+    private static final String FIRST = "First";
 
     /************************************* Declarations *******************************************/
     private SharedPreferences sharedPref;
@@ -54,5 +54,32 @@ public class SharedPreferencesHelper {
 
     public boolean isDarkModeEnabled() {
         return sharedPref.getBoolean(DARK_MODE, false);
+    }
+
+    public void saveName(String name) {
+        SharedPreferences.Editor editor;
+        editor = sharedPref.edit();
+        editor.putString(NAME, name).apply();
+    }
+
+    //Permissions
+    public void firstTimeAskingPermission(String permission) {
+        SharedPreferences.Editor editor;
+        editor = sharedPref.edit();
+        editor.putBoolean(permission, false).apply();
+    }
+
+    public boolean isFirstTimeAskingPermission(String permission) {
+        return sharedPref != null && sharedPref.getBoolean(permission, true);
+    }
+
+    public boolean isFirstTime() {
+        return sharedPref.getBoolean(FIRST, true);
+    }
+
+    public void setFirstTime(boolean first) {
+        SharedPreferences.Editor editor;
+        editor = sharedPref.edit();
+        editor.putBoolean(FIRST, first).apply();
     }
 }

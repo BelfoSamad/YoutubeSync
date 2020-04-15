@@ -1,6 +1,10 @@
 package com.belfoapps.youtubesync.presenters;
 
+import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
+import android.content.Intent;
+import android.location.LocationManager;
+import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.util.Log;
 import android.widget.Toast;
@@ -8,14 +12,12 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 
 import com.belfoapps.youtubesync.contracts.MainContract;
-import com.belfoapps.youtubesync.contracts.WatchContract;
 import com.belfoapps.youtubesync.di.annotations.ActivityContext;
 import com.belfoapps.youtubesync.models.SharedPreferencesHelper;
 import com.belfoapps.youtubesync.pojo.Device;
 import com.belfoapps.youtubesync.utils.Config;
 import com.belfoapps.youtubesync.utils.ReceiveBytesPayloadListener;
 import com.belfoapps.youtubesync.views.activities.MainActivity;
-import com.belfoapps.youtubesync.views.activities.WatchActivity;
 import com.google.android.gms.nearby.Nearby;
 import com.google.android.gms.nearby.connection.AdvertisingOptions;
 import com.google.android.gms.nearby.connection.ConnectionInfo;
@@ -30,15 +32,10 @@ import com.google.android.gms.nearby.connection.Strategy;
 
 import java.util.ArrayList;
 
-import io.reactivex.rxjava3.core.Observer;
-import io.reactivex.rxjava3.disposables.Disposable;
-
 public class MainPresenter implements MainContract.Presenter {
-    private static final String TAG = "MainPresenter";
+    private static final String TAG = "MainPresenterX";
     /***************************************** Declarations ***************************************/
     private MainActivity mView;
-    private WatchActivity mView1;
-    private WatchPresenter watchPresenter;
     private SharedPreferencesHelper mSharedPrefs;
     private String youtube_video_url;
     private String mode;
@@ -48,14 +45,11 @@ public class MainPresenter implements MainContract.Presenter {
     private EndpointDiscoveryCallback discoveryEndpointCallback;
     private ArrayList<Device> advertisers;
     private ArrayList<Device> discoverers;
-    private ArrayList<String> discos;
     private Context context;
+    private int watchers;
 
     /***************************************** Constructor ****************************************/
-    public MainPresenter(@ActivityContext Context context, ReceiveBytesPayloadListener payLoadCallback, SharedPreferencesHelper mSharedPrefs,
-                         WatchPresenter watchPresenter) {
-
-        this.watchPresenter = watchPresenter;
+    public MainPresenter(@ActivityContext Context context, ReceiveBytesPayloadListener payLoadCallback, SharedPreferencesHelper mSharedPrefs) {
         this.mSharedPrefs = mSharedPrefs;
         this.context = context;
         this.payLoadCallback = payLoadCallback;
@@ -63,14 +57,11 @@ public class MainPresenter implements MainContract.Presenter {
         advertiserConnectionCallback = new ConnectionLifecycleCallback() {
             @Override
             public void onConnectionInitiated(@NonNull String endpointId, @NonNull ConnectionInfo connectionInfo) {
+                Log.d(TAG, "onConnectionInitiated With: " + endpointId);
                 if (discoverers == null)
                     discoverers = new ArrayList<>();
 
                 discoverers.add(new Device(connectionInfo.getEndpointName(), endpointId));
-
-                if (discos == null)
-                    discos = new ArrayList<>();
-                discos.add(endpointId);
 
                 mView.updateAdvertiseRecyclerView(discoverers);
             }
@@ -96,13 +87,16 @@ public class MainPresenter implements MainContract.Presenter {
             @Override
             public void onDisconnected(@NonNull String endpointId) {
                 Log.d(TAG, "onDisconnected: Disconnected from EndPoint");
+
+                discoverers.remove(new Device("", endpointId));
+                mView.updateDiscoveryRecyclerView(discoverers);
             }
         };
 
         discovererConnectionCallback = new ConnectionLifecycleCallback() {
             @Override
             public void onConnectionInitiated(@NonNull String endpointId, @NonNull ConnectionInfo connectionInfo) {
-                Log.d(TAG, "onConnectionInitiated: Connection Accepted By the Advertiser");
+                Log.d(TAG, "onConnectionInitiated With: " + endpointId);
                 Nearby.getConnectionsClient(context).acceptConnection(endpointId, payLoadCallback);
             }
 
@@ -110,6 +104,7 @@ public class MainPresenter implements MainContract.Presenter {
             public void onConnectionResult(@NonNull String endpointId, @NonNull ConnectionResolution result) {
                 switch (result.getStatus().getStatusCode()) {
                     case ConnectionsStatusCodes.STATUS_OK: {
+                        Log.d(TAG, "onConnectionResult: Connection Accepted");
                         Toast.makeText(context, "Connection Accepted", Toast.LENGTH_SHORT).show();
                     }
                     break;
@@ -127,12 +122,16 @@ public class MainPresenter implements MainContract.Presenter {
             @Override
             public void onDisconnected(@NonNull String endpointId) {
                 Log.d(TAG, "onDisconnected: Disconnected from EndPoint");
+
+                advertisers.remove(new Device("", endpointId));
+                mView.updateAdvertiseRecyclerView(advertisers);
             }
         };
 
         discoveryEndpointCallback = new EndpointDiscoveryCallback() {
             @Override
             public void onEndpointFound(@NonNull String endpointId, @NonNull DiscoveredEndpointInfo info) {
+                Log.d(TAG, "onEndpointFound: Found " + endpointId);
                 if (advertisers == null)
                     advertisers = new ArrayList<>();
 
@@ -166,11 +165,6 @@ public class MainPresenter implements MainContract.Presenter {
         return !(mView == null);
     }
 
-    @Override
-    public void attachWatchView(WatchContract.View view) {
-        mView1 = (WatchActivity) view;
-    }
-
     /***************************************** Methods ********************************************/
     @Override
     public void setMode(String mode) {
@@ -178,13 +172,21 @@ public class MainPresenter implements MainContract.Presenter {
     }
 
     @Override
+    public void setWatchers(int count) {
+        watchers = count;
+    }
+
+    @Override
     public void setYoutubeVideoUrl(String url) {
-        Log.d(TAG, "setYoutubeVideoUrl: " + url);
         youtube_video_url = url;
     }
 
     @Override
     public void startDiscovering() {
+
+        //Enable Bluetooth, Wifi, Location
+        setupServices();
+
         DiscoveryOptions discoveryOptions =
                 new DiscoveryOptions.Builder().setStrategy(Strategy.P2P_STAR).build();
 
@@ -196,11 +198,14 @@ public class MainPresenter implements MainContract.Presenter {
                 .addOnFailureListener(e -> {
                     //Toast.makeText(context, "Discovery Failed", Toast.LENGTH_SHORT).show();
                 });
-
     }
 
     @Override
     public void startAdvertising() {
+
+        //Enable Bluetooth, Wifi, Location
+        setupServices();
+
         AdvertisingOptions advertisingOptions =
                 new AdvertisingOptions.Builder().setStrategy(Strategy.P2P_STAR).build();
 
@@ -215,6 +220,24 @@ public class MainPresenter implements MainContract.Presenter {
                         (Exception e) -> {
                             //Toast.makeText(context, "Advertising Failed", Toast.LENGTH_SHORT).show();
                         });
+    }
+
+    private void setupServices() {
+        //Enable Location
+        if (!((LocationManager) context.getSystemService(Context.LOCATION_SERVICE))
+                .isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            mView.startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+        }
+
+        //Enable Bluetooth
+        BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        if (!mBluetoothAdapter.isEnabled())
+            mView.startActivityForResult(new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE), 0);
+
+        //Enable Wifi
+        WifiManager wifi = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+        if (!wifi.isWifiEnabled())
+            wifi.setWifiEnabled(true);
     }
 
     @Override
@@ -243,7 +266,22 @@ public class MainPresenter implements MainContract.Presenter {
 
     @Override
     public void acceptConnection(int position) {
+        Log.d(TAG, "acceptConnection: Accepted Connection With " + discoverers.get(position).getEndPoint());
         Nearby.getConnectionsClient(context).acceptConnection(discoverers.get(position).getEndPoint(), payLoadCallback);
+    }
+
+    @Override
+    public void disconnectAll() {
+        if (discoverers != null)
+            for (Device device :
+                    discoverers) {
+                Nearby.getConnectionsClient(context).disconnectFromEndpoint(device.getEndPoint());
+            }
+        else if (advertisers != null)
+            for (Device device :
+                    advertisers) {
+                Nearby.getConnectionsClient(context).disconnectFromEndpoint(device.getEndPoint());
+            }
     }
 
     @Override
@@ -258,40 +296,71 @@ public class MainPresenter implements MainContract.Presenter {
     }
 
     @Override
+    public void sendWatchersCount() {
+        if (discoverers != null) {
+            String url = Config.WATCHERS + ":" + discoverers.size();
+            setWatchers(discoverers.size());
+            for (Device discoverer :
+                    discoverers) {
+                Payload bytesPayload = Payload.fromBytes(url.getBytes());
+                Nearby.getConnectionsClient(context).sendPayload(discoverer.getEndPoint(), bytesPayload);
+            }
+        } else setWatchers(0);
+    }
+
+    @Override
     public String getYoutubeVideoUrl() {
         return youtube_video_url;
     }
 
     @Override
-    public ArrayList<String> getDiscoverers() {
-        return discos;
+    public String getMode() {
+        return mode;
+    }
+
+    @Override
+    public int getWatchers() {
+        return watchers;
     }
 
     @Override
     public void sendRequest(String type, int time) {
         String msg = type + ":" + time;
-        Log.d(TAG, "sendRequest: " + msg);
-        for (String discoverer :
-                discos) {
-            Payload bytesPayload = Payload.fromBytes(msg.getBytes());
-            Nearby.getConnectionsClient(mView).sendPayload(discoverer, bytesPayload);
-        }
+        if (discoverers != null)
+            for (Device discoverer :
+                    discoverers) {
+                Log.d(TAG, "sendRequest: " + msg + " to " + discoverer.getEndPoint());
+                Payload bytesPayload = Payload.fromBytes(msg.getBytes());
+                Nearby.getConnectionsClient(mView).sendPayload(discoverer.getEndPoint(), bytesPayload);
+            }
     }
 
     @Override
     public void getRequest(String type, int time) {
-        Log.d(TAG, "getRequest: " + type);
         switch (type) {
             case Config.START:
-                mView1.startYoutubeVideo(time);
+                mView.startYoutubeVideo(time);
                 break;
+            case Config.BUFFER:
             case Config.PAUSE:
-                mView1.pauseYoutubeVideo(time);
+                mView.pauseYoutubeVideo(time);
                 break;
             case Config.SEEK:
-                mView1.seekToYoutubeVideo(time);
+                mView.seekToYoutubeVideo(time);
+                break;
+            case Config.SYNC:
+                mView.syncYoutubeVideo(time);
                 break;
         }
     }
 
+    @Override
+    public ArrayList<Device> getDevicesCopy(ArrayList<Device> devices) {
+        ArrayList<Device> devices_copy = new ArrayList<>();
+        for (Device device :
+                devices) {
+            devices_copy.add((Device) device.clone());
+        }
+        return devices_copy;
+    }
 }

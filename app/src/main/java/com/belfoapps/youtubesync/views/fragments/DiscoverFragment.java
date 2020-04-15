@@ -12,10 +12,10 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 import com.belfoapps.youtubesync.R;
 import com.belfoapps.youtubesync.pojo.Device;
 import com.belfoapps.youtubesync.presenters.MainPresenter;
-import com.belfoapps.youtubesync.utils.Config;
 import com.belfoapps.youtubesync.views.activities.MainActivity;
 import com.belfoapps.youtubesync.views.ui.adapters.DevicesAdapter;
 import com.belfoapps.youtubesync.views.ui.custom.FragmentLifeCycle;
+import com.skyfishjy.library.RippleBackground;
 
 import java.util.ArrayList;
 
@@ -44,8 +44,14 @@ public class DiscoverFragment extends Fragment implements FragmentLifeCycle {
     /**************************************** View Declarations ***********************************/
     @BindView(R.id.recycler_view)
     RecyclerView mRecyclerView;
+    @BindView(R.id.ripple_background)
+    RippleBackground mRipple;
 
     /**************************************** Click Listeners *************************************/
+    @OnClick(R.id.back)
+    public void back() {
+        mView.onBackPressed();
+    }
     /**************************************** Essential Methods ***********************************/
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -65,10 +71,12 @@ public class DiscoverFragment extends Fragment implements FragmentLifeCycle {
     @Override
     public void onStartFragment() {
         mPresenter.startDiscovering();
+        mRipple.startRippleAnimation();
     }
 
     @Override
     public void onStopFragment() {
+        mRipple.stopRippleAnimation();
     }
 
     /**************************************** Methods *********************************************/
@@ -86,7 +94,7 @@ public class DiscoverFragment extends Fragment implements FragmentLifeCycle {
             mAdapter.clearAll();
 
             // Adding The New List of Categories
-            mAdapter.addAll(connections);
+            mAdapter.addAll(mPresenter.getDevicesCopy(connections));
         }
     }
 }

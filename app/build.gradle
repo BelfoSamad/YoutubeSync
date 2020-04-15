@@ -62,4 +62,7 @@ dependencies {
 
     //Device Nearby
     implementation 'com.google.android.gms:play-services-nearby:17.0.0'
+
+    //Ripple Animation
+    implementation 'com.skyfishjy.ripplebackground:library:1.0.1'
 }

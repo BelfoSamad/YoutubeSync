@@ -4,20 +4,33 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorPrimary"
     tools:context=".views.fragments.SetupFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <ImageView
+            android:id="@+id/logo"
+            android:layout_width="256dp"
+            android:layout_height="128dp"
+            android:layout_marginTop="32dp"
+            android:background="@android:color/white"
+            app:layout_constraintBottom_toTopOf="@id/invite_container"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
         <RelativeLayout
+            android:id="@+id/invite_container"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
+            android:layout_height="wrap_content"
             android:layout_marginTop="64dp"
             android:layout_marginBottom="64dp"
             app:layout_constraintBottom_toTopOf="@id/or"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toBottomOf="@id/logo">
 
             <TextView
                 android:id="@+id/invite_text"
@@ -26,26 +39,32 @@
                 android:layout_alignParentTop="true"
                 android:layout_centerHorizontal="true"
                 android:text="Invite Friends To Watch Video"
-                android:textColor="@android:color/black"
+                android:textColor="@android:color/white"
                 android:textSize="18sp" />
 
             <EditText
                 android:id="@+id/youtub_url"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_below="@id/invite_text"
                 android:layout_centerHorizontal="true"
-                android:layout_centerVertical="true"
                 android:layout_marginStart="64dp"
+                android:layout_marginTop="16dp"
                 android:layout_marginEnd="64dp"
-                android:hint="Youtube Video Url" />
+                android:background="@drawable/edit_text"
+                android:hint="Youtube Video Url"
+                android:textSize="16sp" />
 
             <Button
                 android:id="@+id/advertise"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
+                android:layout_below="@id/youtub_url"
                 android:layout_centerHorizontal="true"
-                android:text="Invite" />
+                android:layout_marginTop="32dp"
+                android:background="@drawable/button"
+                android:text="Invite"
+                android:textColor="@color/colorPrimary" />
         </RelativeLayout>
 
         <TextView
@@ -53,15 +72,17 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="OR"
+            android:textColor="@android:color/white"
             android:textSize="24sp"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/scan_invites_container"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@id/invite_container" />
 
         <RelativeLayout
+            android:id="@+id/scan_invites_container"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
+            android:layout_height="wrap_content"
             android:layout_marginTop="64dp"
             android:layout_marginBottom="64dp"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -75,18 +96,21 @@
                 android:layout_alignParentTop="true"
                 android:layout_centerHorizontal="true"
                 android:text="Scan For Invites From Your Friends"
-                android:textColor="@android:color/black"
+                android:textColor="@android:color/white"
                 android:textSize="18sp" />
 
             <Button
                 android:id="@+id/discover"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:text="Scan Invites" />
+                android:layout_below="@id/scan_text"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/button"
+                android:text="Scan Invites"
+                android:textColor="@color/colorPrimary" />
 
         </RelativeLayout>
-
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

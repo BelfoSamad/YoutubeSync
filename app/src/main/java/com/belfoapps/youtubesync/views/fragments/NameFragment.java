@@ -12,64 +12,54 @@ import android.widget.EditText;
 import androidx.fragment.app.Fragment;
 
 import com.belfoapps.youtubesync.R;
-import com.belfoapps.youtubesync.presenters.MainPresenter;
+import com.belfoapps.youtubesync.presenters.SplashPresenter;
 import com.belfoapps.youtubesync.utils.Config;
-import com.belfoapps.youtubesync.views.activities.MainActivity;
-import com.belfoapps.youtubesync.views.ui.custom.FragmentLifeCycle;
+import com.belfoapps.youtubesync.views.activities.SplashActivity;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class SetupFragment extends Fragment implements FragmentLifeCycle {
-    private static final String TAG = "SetupFragment";
+public class NameFragment extends Fragment {
+    private static final String TAG = "NameFragment";
     /**************************************** Declarations ****************************************/
-    private MainActivity mView;
-    private MainPresenter mPresenter;
+    private SplashActivity mView;
+    private SplashPresenter mPresenter;
 
     /***************************************** Constructor ****************************************/
-    public SetupFragment() {
+    public NameFragment() {
         // Required empty public constructor
     }
 
-    public SetupFragment(MainActivity mView, MainPresenter mPresenter) {
+    public NameFragment(SplashActivity mView, SplashPresenter mPresenter) {
         this.mView = mView;
         this.mPresenter = mPresenter;
     }
 
     /**************************************** View Declarations ***********************************/
-    @BindView(R.id.youtub_url)
-    EditText youtube_url;
-    @BindView(R.id.advertise)
-    Button advertise;
+    @BindView(R.id.get_name)
+    EditText get_name;
+    @BindView(R.id.next)
+    Button next;
 
     /**************************************** Click Listeners *************************************/
-    @OnClick(R.id.discover)
-    public void discover() {
-        mPresenter.setMode(Config.DISCOVER);
-        youtube_url.setText("");
-        mView.nextStep(Config.DISCOVER_STEP);
-    }
-
-    @OnClick(R.id.advertise)
-    public void advertise() {
-        mPresenter.setMode(Config.ADVERTISE);
-        mPresenter.setYoutubeVideoUrl(youtube_url.getText().toString());
-        youtube_url.setText("");
-        mView.nextStep(Config.ADVERTISE_STEP);
+    @OnClick(R.id.next)
+    public void goNext() {
+        mPresenter.setName(get_name.getText().toString());
+        mView.nextStep(Config.PERMISSION_STEP);
     }
 
     /**************************************** Essential Methods ***********************************/
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_setup, container, false);
+
+        View view = inflater.inflate(R.layout.fragment_name, container, false);
 
         //Set ButterKnife
         ButterKnife.bind(this, view);
 
-        //Edit Text Listener
-        youtube_url.addTextChangedListener(new TextWatcher() {
+        get_name.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -78,8 +68,8 @@ public class SetupFragment extends Fragment implements FragmentLifeCycle {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (s.length() > 0)
-                    advertise.setEnabled(true);
-                else advertise.setEnabled(false);
+                    next.setEnabled(true);
+                else next.setEnabled(false);
             }
 
             @Override
@@ -90,16 +80,4 @@ public class SetupFragment extends Fragment implements FragmentLifeCycle {
 
         return view;
     }
-
-    @Override
-    public void onStartFragment() {
-
-    }
-
-    @Override
-    public void onStopFragment() {
-
-    }
-
-    /**************************************** Methods *********************************************/
 }

@@ -10,15 +10,21 @@ public class Config {
     public static final int ADVERTISE_STEP = 1;
     public static final int DISCOVER_STEP = 2;
     public static final int WATCH_STEP = 3;
+
+    public static final int NAME_STEP = 1;
+    public static final int PERMISSION_STEP = 2;
+
     public static final String SERVICE_ID = "YoutubeSync";
     public static final String DEVICE_NAME = Build.MANUFACTURER + "-" + Build.MODEL;
 
     //Requests
     public static final String URL = "url";
+    public static final String WATCHERS = "Watchers";
     public static final String PAUSE = "Pause";
     public static final String START = "Start";
     public static final String BUFFER = "Buffering";
     public static final String SEEK = "Seek";
+    public static final String SYNC = "Sync";
 
     //Modes
     public static final String ADVERTISE = "Advertise";
